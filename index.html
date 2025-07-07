@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Generator</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500&display=swap">
+    <style>
+        :root {
+            --ivory: #F8F4E9;
+            --charcoal: #2A2A2A;
+            --taupe: #D8C3A5;
+            --sage: #8E8D8A;
+            --claret: #7D1D3F;
+            --gold: #C0A062;
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.8;
+            color: var(--charcoal);
+            background-color: var(--ivory);
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            flex: 1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 2px;
+            background: var(--gold);
+            margin: 25px auto 0;
+        }
+        
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--sage);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+        
+        .card {
+            background: var(--ivory);
+            border-radius: 2px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+            padding: 50px 40px;
+            margin-bottom: 40px;
+            transition: var(--transition);
+            border: 1px solid rgba(210, 210, 210, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--claret);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 500;
+            color: var(--charcoal);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--taupe);
+            border-radius: 1px;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--charcoal);
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--claret);
+            box-shadow: 0 0 0 1px var(--claret);
+        }
+        
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+        
+        button {
+            background: var(--charcoal);
+            color: var(--ivory);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 1px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.6s;
+        }
+        
+        button:hover {
+            background: var(--claret);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .loading {
+            text-align: center;
+            display: none;
+            padding: 50px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(218, 195, 165, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--claret);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            background: var(--ivory);
+            border-radius: 2px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+            padding: 50px 40px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+            border: 1px solid rgba(210, 210, 210, 0.2);
+            position: relative;
+        }
+        
+        .result::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gold);
+        }
+        
+        .result h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-content {
+            white-space: pre-line;
+            font-size: 1.1rem;
+            line-height: 1.9;
+            color: var(--charcoal);
+        }
+        
+        .result-content.poem {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            text-align: center;
+            line-height: 2.4;
+            font-size: 1.3rem;
+        }
+        
+        .result-content.quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            text-align: center;
+            font-style: italic;
+            position: relative;
+            padding: 0 40px;
+            line-height: 2.2;
+        }
+        
+        .result-content.quote::before,
+        .result-content.quote::after {
+            content: '"';
+            font-size: 4rem;
+            color: var(--taupe);
+            position: absolute;
+            opacity: 0.3;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        
+        .result-content.quote::before {
+            top: -30px;
+            left: 0;
+        }
+        
+        .result-content.quote::after {
+            bottom: -50px;
+            right: 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: var(--charcoal);
+            color: var(--taupe);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        
+        footer span {
+            color: var(--ivory);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .card, .result {
+                padding: 30px 25px;
+            }
+            
+            .result-content.quote {
+                font-size: 1.3rem;
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Content Generator</h1>
+            <p class="subtitle">Create elegant poems, witty jokes, and inspiring content with AI</p>
+        </header>
+        
+        <div class="card">
+            <div class="form-group">
+                <label for="content-type">Content Type</label>
+                <select id="content-type">
+                    <option value="poem">Poem</option>
+                    <option value="joke">Joke</option>
+                    <option value="recipe">Recipe</option>
+                    <option value="quote">Inspirational Quote</option>
+                    <option value="travel">Travel Destination</option>
+                    <option value="babyname">Baby Name</option>
+                    <option value="story">Short Story</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="theme">Theme/Subject</label>
+                <input type="text" id="theme" placeholder="e.g. Autumn in Paris, Mediterranean cuisine...">
+            </div>
+            
+            <div class="form-group">
+                <label for="tone">Tone/Style</label>
+                <select id="tone">
+                    <option value="romantic">Romantic</option>
+                    <option value="classic">Classic</option>
+                    <option value="witty">Witty</option>
+                    <option value="inspirational">Inspirational</option>
+                    <option value="humorous">Humorous</option>
+                    <option value="elegant">Elegant</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="extra-options-container">
+                <!-- Extra options will be added here dynamically -->
+            </div>
+            
+            <button id="generate-button">Generate Content</button>
+        </div>
+        
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Crafting your content...</p>
+        </div>
+        
+        <div class="result">
+            <h2>Your Generated Content</h2>
+            <div class="result-content" id="result-content"></div>
+        </div>
+    </div>
+    
+    <footer>
+        Coded by <span>Galaletsang Mpye</span> • Powered by SheCodes AI
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const API_KEY = '5f4623681b314faf0a4396a71bfta8oa';
+            const API_URL = 'https://api.shecodes.io/ai/v1/generate';
+            
+            const contentTypeSelect = document.getElementById('content-type');
+            const extraOptionsContainer = document.getElementById('extra-options-container');
+            const generateButton = document.getElementById('generate-button');
+            const loadingDiv = document.querySelector('.loading');
+            const resultDiv = document.querySelector('.result');
+            const resultContent = document.getElementById('result-content');
+            
+            // Update extra options based on content type
+            contentTypeSelect.addEventListener('change', updateExtraOptions);
+            
+            // Initial setup
+            updateExtraOptions();
+            
+            // Generate content when button is clicked
+            generateButton.addEventListener('click', generateContent);
+            
+            function updateExtraOptions() {
+                const contentType = contentTypeSelect.value;
+                let extraOptionsHTML = '';
+                
+                switch(contentType) {
+                    case 'poem':
+                        extraOptionsHTML = `
+                            <label for="poem-type">Poem Style</label>
+                            <select id="poem-type">
+                                <option value="haiku">Haiku</option>
+                                <option value="sonnet">Sonnet</option>
+                                <option value="free-verse">Free Verse</option>
+                                <option value="limerick">Limerick</option>
+                            </select>
+                        `;
+                        break;
+                    case 'recipe':
+                        extraOptionsHTML = `
+                            <label for="dietary-restrictions">Dietary Preferences</label>
+                            <select id="dietary-restrictions">
+                                <option value="none">None</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
+                                <option value="gluten-free">Gluten-Free</option>
+                            </select>
+                        `;
+                        break;
+                    case 'travel':
+                        extraOptionsHTML = `
+                            <label for="budget">Travel Style</label>
+                            <select id="budget">
+                                <option value="luxury">Luxury</option>
+                                <option value="boutique">Boutique</option>
+                                <option value="adventure">Adventure</option>
+                            </select>
+                        `;
+                        break;
+                    case 'babyname':
+                        extraOptionsHTML = `
+                            <label for="gender">Gender</label>
+                            <select id="gender">
+                                <option value="neutral">Neutral</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <label for="origin">Cultural Origin (optional)</label>
+                            <input type="text" id="origin" placeholder="e.g. French, Japanese...">
+                        `;
+                        break;
+                }
+                
+                extraOptionsContainer.innerHTML = extraOptionsHTML;
+            }
+            
+            async function generateContent() {
+                const contentType = contentTypeSelect.value;
+                const theme = document.getElementById('theme').value.trim();
+                const tone = document.getElementById('tone').value;
+                
+                if (!theme) {
+                    alert('Please enter a theme or subject');
+                    return;
+                }
+                
+                // Show loading, hide result
+                loadingDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                
+                // Get extra options based on content type
+                let extraOptions = {};
+                switch(contentType) {
+                    case 'poem':
+                        extraOptions.poemType = document.getElementById('poem-type').value;
+                        break;
+                    case 'recipe':
+                        extraOptions.dietaryRestrictions = document.getElementById('dietary-restrictions').value;
+                        break;
+                    case 'travel':
+                        extraOptions.budget = document.getElementById('budget').value;
+                        break;
+                    case 'babyname':
+                        extraOptions.gender = document.getElementById('gender').value;
+                        extraOptions.origin = document.getElementById('origin').value;
+                        break;
+                }
+                
+                try {
+                    // Generate the prompt based on user inputs
+                    const prompt = generatePrompt(contentType, theme, tone, extraOptions);
+                    const context = "You are an elegant, sophisticated content creator. Generate refined, polished content with beautiful language.";
+                    
+                    // Call the SheCodes AI API
+                    const response = await fetch(`${API_URL}?prompt=${encodeURIComponent(prompt)}&context=${encodeURIComponent(context)}&key=${API_KEY}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('API request failed');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Display result
+                    resultContent.innerHTML = data.answer;
+                    resultContent.className = 'result-content ' + contentType;
+                    loadingDiv.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                    
+                    // Scroll to result
+                    resultDiv.scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    console.error('Error:', error);
+                    loadingDiv.style.display = 'none';
+                    resultContent.innerHTML = "Apologies, we encountered an error. Please try again.";
+                    resultDiv.style.display = 'block';
+                }
+            }
+            
+            function generatePrompt(type, theme, tone, options) {
+                let prompt = `Generate a ${tone} ${type} about ${theme}`;
+                
+                switch(type) {
+                    case 'poem':
+                        prompt += ` in ${options.poemType} form.`;
+                        if (options.poemType === 'haiku') prompt += ' Maintain the traditional 5-7-5 syllable structure.';
+                        prompt += ' Use vivid imagery and elegant language.';
+                        break;
+                    case 'joke':
+                        prompt += `. Craft a sophisticated joke with clever wordplay.`;
+                        break;
+                    case 'recipe':
+                        prompt += ` recipe`;
+                        if (options.dietaryRestrictions !== 'none') {
+                            prompt += ` that is ${options.dietaryRestrictions}.`;
+                        }
+                        prompt += `. Include refined ingredients and elegant preparation instructions.`;
+                        break;
+                    case 'quote':
+                        prompt += `. Create an inspirational quote worthy of being framed. Attribute it to a thoughtful author.`;
+                        break;
+                    case 'travel':
+                        prompt += ` for ${options.budget} travelers. Recommend exquisite destinations with cultural significance.`;
+                        break;
+                    case 'babyname':
+                        prompt += `. Suggest ${options.gender} names`;
+                        if (options.origin) prompt += ` of ${options.origin} origin`;
+                        prompt += ` with beautiful meanings and historical significance.`;
+                        break;
+                    case 'story':
+                        prompt += `. Compose a short literary story with depth and atmosphere.`;
+                        break;
+                }
+                
+                return prompt + " Ensure the language is polished and sophisticated.";
+            }
+        });
+    </script>
+</body>
+</html>
